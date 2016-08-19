@@ -33,8 +33,8 @@ TIMEOUT = 180
 def setUpModule():
     base.enabledPlugins.extend(['jobs', 'slicer_cli'])
     base.startServer()
-    JobStatus = __import__('girder.plugins.jobs.constants.JobStatus')
     global JobStatus
+    from girder.plugins.jobs.constants import JobStatus
 
 
 def tearDownModule():
