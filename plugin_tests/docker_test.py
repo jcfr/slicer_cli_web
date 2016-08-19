@@ -28,12 +28,14 @@ from docker import Client
 
 # boiler plate to start and stop the server
 TIMEOUT = 180
-JobStatus = None
+
 
 def setUpModule():
     base.enabledPlugins.extend(['jobs', 'slicer_cli'])
     base.startServer()
     JobStatus = __import__('girder.plugins.jobs.constants.JobStatus')
+    global JobStatus
+
 
 def tearDownModule():
     base.stopServer()
@@ -65,14 +67,14 @@ class DockerImageManagementTest(base.TestCase):
         # add a bad image
         img_name = 'null/null:null'
         self.assertNoImages()
-        self.addImage(img_name, self.JobStatus.ERROR)
+        self.addImage(img_name, JobStatus.ERROR)
         self.assertNoImages()
 
     def testDockerAdd(self):
         # try to cache a good image to the mongo database
         img_name = "dsarchive/histomicstk:v0.1.3"
         self.assertNoImages()
-        self.addImage(img_name, self.JobStatus.SUCCESS)
+        self.addImage(img_name, JobStatus.SUCCESS)
         self.imageIsLoaded(img_name, True)
 
     def testDockerDelete(self):
@@ -80,7 +82,7 @@ class DockerImageManagementTest(base.TestCase):
         # dont attempt to delete the docker image
         img_name = "dsarchive/histomicstk:v0.1.3"
         self.assertNoImages()
-        self.addImage(img_name, self.JobStatus.SUCCESS)
+        self.addImage(img_name, JobStatus.SUCCESS)
         self.imageIsLoaded(img_name, True)
         self.deleteImage(img_name, True, False)
         self.imageIsLoaded(img_name, exists=False)
@@ -91,9 +93,9 @@ class DockerImageManagementTest(base.TestCase):
         # machine
         img_name = "dsarchive/histomicstk:v0.1.3"
         self.assertNoImages()
-        self.addImage(img_name, self.JobStatus.SUCCESS)
+        self.addImage(img_name, JobStatus.SUCCESS)
         self.imageIsLoaded(img_name, True)
-        self.deleteImage(img_name, True, True, self.JobStatus.SUCCESS)
+        self.deleteImage(img_name, True, True, JobStatus.SUCCESS)
 
         try:
             self.docker_client.inspect_image(img_name)
@@ -160,7 +162,7 @@ class DockerImageManagementTest(base.TestCase):
         # job should fail gracefully after pulling the image
         img_name = 'library/hello-world:latest'
         self.assertNoImages()
-        self.addImage(img_name, self.JobStatus.ERROR)
+        self.addImage(img_name, JobStatus.ERROR)
         self.assertNoImages()
 
     def splitName(self, name):
@@ -203,7 +205,7 @@ class DockerImageManagementTest(base.TestCase):
         delete docker image data and test whether a docker
         image can be deleted off the local machine
         """
-        job_status = [self.JobStatus.SUCCESS]
+        job_status = [JobStatus.SUCCESS]
         if deleteDockerImage:
             event = threading.Event()
 
@@ -211,8 +213,8 @@ class DockerImageManagementTest(base.TestCase):
                 job = girderEvent.info
 
                 if job['type'] == 'slicer_cli_job' and \
-                        (job['status'] == self.JobStatus.SUCCESS or
-                         job['status'] == self.JobStatus.ERROR):
+                        (job['status'] == JobStatus.SUCCESS or
+                         job['status'] == JobStatus.ERROR):
 
                     events.unbind('model.job.save.after', 'slicer_cli_del')
                     job_status[0] = job['status']
@@ -253,15 +255,15 @@ class DockerImageManagementTest(base.TestCase):
         """test the put endpoint, name can be a string or a list of strings"""
 
         event = threading.Event()
-        job_status = [self.JobStatus.SUCCESS]
+        job_status = [JobStatus.SUCCESS]
 
         def tempListener(self, girderEvent):
 
             job = girderEvent.info
 
             if (job['type'] == 'slicer_cli_job') and \
-                    (job['status'] == self.JobStatus.SUCCESS or
-                     job['status'] == self.JobStatus.ERROR):
+                    (job['status'] == JobStatus.SUCCESS or
+                     job['status'] == JobStatus.ERROR):
 
                 job_status[0] = job['status']
 
