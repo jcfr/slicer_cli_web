@@ -28,12 +28,12 @@ from docker import Client
 
 # boiler plate to start and stop the server
 TIMEOUT = 180
-
+JobStatus = None
 
 def setUpModule():
-    base.enabledPlugins.append('slicer_cli')
+    base.enabledPlugins.extend(['jobs', 'slicer_cli'])
     base.startServer()
-
+    JobStatus = __import__('girder.plugins.jobs.constants.JobStatus')
 
 def tearDownModule():
     base.stopServer()
@@ -60,7 +60,6 @@ class DockerImageManagementTest(base.TestCase):
             self.docker_client = Client(base_url='unix://var/run/docker.sock')
         except Exception as err:
             self.fail('could not create the docker client ' + str(err))
-        self.JobStatus = __import__('girder.plugins.jobs.constants.JobStatus')
 
     def testAddNonExistentImage(self):
         # add a bad image
