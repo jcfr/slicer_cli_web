@@ -1,4 +1,10 @@
-histomicstk.views.Panel = girder.View.extend({
+import View from 'girder/views/View';
+
+import PanelTemplate from '../../templates/panel.jade';
+
+import '../../stylesheets/panel/panel.styl';
+
+var Panel = View.extend({
     events: {
         'show.bs.collapse': 'expand',
         'hide.bs.collapse': 'collapse',
@@ -8,7 +14,7 @@ histomicstk.views.Panel = girder.View.extend({
         this.spec = settings.spec;
     },
     render: function () {
-        this.$el.html(histomicstk.templates.panel(this.spec));
+        this.$el.html(PanelTemplate(this.spec));
     },
     expand: function () {
         this.$('.icon-down-open').attr('class', 'icon-up-open');
@@ -23,3 +29,5 @@ histomicstk.views.Panel = girder.View.extend({
         }
     }
 });
+
+export default Panel;

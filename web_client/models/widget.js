@@ -1,7 +1,10 @@
+import Backbone from 'backbone';
+import tinycolor from 'tinycolor2';
+
 /**
  * A backbone model controlling the behavior and rendering of widgets.
  */
-histomicstk.models.Widget = Backbone.Model.extend({
+var Widget = Backbone.Model.extend({
     defaults: {
         type: '',          // The specific widget type
         title: '',         // The label to display with the widget
@@ -22,7 +25,7 @@ histomicstk.models.Widget = Backbone.Model.extend({
     /**
      * Sets initial model attributes with normalization.
      */
-    initialize: function (model) {
+    initialize: function (model) {  // eslint-disable-line backbone/initialize-on-top
         this.set(_.defaults(model || {}, this.defaults));
     },
 
@@ -294,34 +297,4 @@ histomicstk.models.Widget = Backbone.Model.extend({
     ]
 });
 
-histomicstk.collections.Widget = Backbone.Collection.extend({
-    model: histomicstk.models.Widget,
-    localStorage: new Backbone.LocalStorage('HistomicsTK-Widget-Collection'),
-
-    /**
-     * Get an object containing all of the current parameter values as
-     *   modelId -> value
-     */
-    values: function () {
-        var params = {};
-        this.each(function (m) {
-            // apply special handling for certain parameter types
-            // https://github.com/DigitalSlideArchive/HistomicsTK/blob/9e5112ab3444ad8c699d70452a5fe4a74ebbc778/server/__init__.py#L44-L46
-            switch (m.get('type')) {
-                case 'file':
-                    params[m.id + '_girderItemId'] = m.value().id;
-                    break;
-                case 'new-file':
-                    params[m.id + '_girderFolderId'] = m.value().get('folderId');
-                    params[m.id + '_name'] = m.value().get('name');
-                    break;
-                case 'image':
-                    params[m.id + '_girderFileId'] = m.value().id;
-                    break;
-                default:
-                    params[m.id] = JSON.stringify(m.value());
-            }
-        });
-        return params;
-    }
-});
+export default Widget;
